@@ -1,0 +1,38 @@
+{
+    "name": "axilweb/aw-contact-form",
+    "description": "Automatically generates contact forms with the help of ChatGPT",
+    "require": {
+        "php": ">=7.4",
+        "openai-php/client": "^0.8.4",
+        "symfony/http-client": "^6.4",
+        "nyholm/psr7": "^1.8",
+        "guzzlehttp/guzzle": "^7.8",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "require-dev": {
+        "wp-coding-standards/wpcs": "^3.0",
+        "phpcompatibility/php-compatibility": "^9.3",
+        "phpcompatibility/phpcompatibility-wp": "*"
+    },
+    "license": "GPL-3.0+",
+    "autoload": {
+        "psr-4": {
+            "AwContactForm\\": "backend/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Axilweb"
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "php-http/discovery": true
+        }
+    },
+    "scripts": {
+        "cs": "phpcs --standard=phpcs.xml .",
+        "cbf": "phpcbf --standard=phpcs.xml ."
+    }
+}
