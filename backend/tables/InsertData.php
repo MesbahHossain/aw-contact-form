@@ -7,14 +7,12 @@ class InsertData {
         global $wpdb;
         $table_name = $wpdb->prefix . $t_name;
 
-        $wpdb->insert(
-            $table_name, $table_data
-            // array(
-            //     'time' => current_time( 'mysql' ),
-            //     'name' => 'John Doe',
-            //     'text' => 'Hello World!',
-            //     'url'  => 'https://wordpress.org'
-            // )
-        );
+        $result = $wpdb->insert( $table_name, $table_data );
+
+        if ($result === false) { // There was an error inserting data            
+            return $wpdb->last_error;
+        } else {
+            return true;
+        }
     }
 }
