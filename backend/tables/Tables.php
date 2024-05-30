@@ -13,7 +13,8 @@ class Tables {
         form text NOT NULL,
         prompt text NOT NULL,
         data json NOT NULL,
-        status ENUM("draft", "ready", "deleted") default "draft",
+        is_configured Boolean,
+        is_trashed Boolean,
         created_at DATE,
         PRIMARY KEY (form_id)';
         

@@ -23,8 +23,8 @@ class UpdateFormData {
     }
 
     public function update_form_data($request) {
-        return UpdateData::update_table_data('forms', $request['tableData'][0], $request['formId']);
-        // print_r($request['tableData'][0]);
+        // return UpdateData::update_table_data('forms', $request['tableData'], $request['formId']);
+        print_r($request['tableData']);
         // print_r($request['formId']);
         // echo 'working';
     }

@@ -1,13 +1,21 @@
 import Swal from 'sweetalert2';
 import { baseUrl } from '../App';
 
-const updateFormData = async (formId) => {
+const updateFormData = async (formId, action) => {
     try {
+        let tableData = '';
+        if(action == 'trash') {
+            tableData = [
+                {'status' : 'trashed'}
+            ];            
+        } else if (action == 'restore') {
+            tableData = [
+                {'status' : 'draft'}
+            ];
+        }
         const dataToSend = {
             formId: formId,
-            tableData: [
-                {'status' : 'deleted'}
-            ]
+            tableData: tableData
         }
         console.log(dataToSend);
         const response = await fetch(`${baseUrl}/contact-form-plugin/wp-json/awcontactform/v1/updateformdata/`, {
@@ -32,18 +40,18 @@ const updateFormData = async (formId) => {
             Toast.fire({
                 icon: "success",
                 title: "Form sent to trash"
-            }).then(() => {
-                console.log(responseData);
-                dispatch(store).setStep(3);
             });
+            return true;
         } else {
             Toast.fire({
                 icon: "error",
-                title: "Failed to delete the form"
+                title: "Failed to trash the form"
             });
+            return false;
         }
     } catch (error) {
         console.error('Error sending data to WordPress:', error);
+        return false;
     }
 };
 

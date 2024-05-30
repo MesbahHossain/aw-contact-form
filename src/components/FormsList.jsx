@@ -14,6 +14,7 @@ import { LuSettings } from "react-icons/lu";
 import { GoTrash } from "react-icons/go";
 import { LuSearch } from "react-icons/lu";
 import { AiOutlinePlus } from "react-icons/ai";
+import { IoIosUndo } from "react-icons/io";
 
 const FormsList = () => {
     document.body.classList.remove('bgDark');
@@ -22,7 +23,7 @@ const FormsList = () => {
     const [tooltipText, setTooltipText] = useState('Click to copy');
     const [showModal, setShowModal] = useState(false);
     const [selectedForm, setSelectedForm] = useState(null);
-    const [isTrash, setIsTrash] = useState(false);
+    const [filter, setFilter] = useState('0');
     const navigate = useNavigate();
 
     const handleView = (form) => {
@@ -39,13 +40,9 @@ const FormsList = () => {
         navigate(`/mailconfigure/${formId}`);
     };
     
-    const handleDelete = async (formId) => {
-        const success = await updateFormData(formId);
-        if (success) {
-            setTableData(prevTableData => prevTableData.filter(form => form.form_id !== formId));
-        } else {
-            alert('Failed to delete form');
-        }
+    const handleTrash = async (formId, action) => {
+        const success = await updateFormData(formId, action);
+        success ? setTableData(prevTableData => prevTableData.filter(form => form.form_id !== formId)) : '';
     };      
 
     useEffect(() => {
@@ -62,14 +59,17 @@ const FormsList = () => {
         selectAll();
     }, [doneFetching]);
 
+    // Filter forms based on the selected filter
+    const filteredForms = tableData.filter(form => form.is_trashed === filter);
+
     return (
         <>
         <div className="forms-list-wrapper mt-5 mr-5">
             <h2 className='text-2xl font-semibold mb-4'>Forms</h2>
             <div className="forms-table-wrapper bg-white p-5 rounded-xl">
                 <div>
-                    <button className='default-border rounded-lg py-[7px] px-4 font-medium mr-[10px]'>All Forms</button>
-                    <button className='default-border rounded-lg py-[7px] px-4 font-medium'>Trash</button>
+                    <button className={`border rounded-lg py-[7px] px-4 font-medium mr-[10px] ${filter === '0' ? 'bg-purple-100 border-purple-700' : 'default-border'}`} onClick={() => setFilter('0')}>All Forms</button>
+                    <button className={`border rounded-lg py-[7px] px-4 font-medium ${filter === '1' ? 'bg-purple-100 border-purple-700' : 'default-border'}`} onClick={() => setFilter('1')}>Trash</button>
                 </div>
                 <div className='flex justify-between default-border rounded-lg py-[15px] px-[25px] mt-[20px] mb-[10px]'>
                     <form className='default-border flex items-center rounded-lg py-[2px] px-[15px]'>
@@ -93,8 +93,8 @@ const FormsList = () => {
                     </thead>
                     <tbody className='text-[#565865]'>
                     {doneFetching === true ?
-                    typeof tableData === 'object' && tableData.length > 0 ? 
-                        tableData.map((form, index) => (
+                    typeof filteredForms === 'object' && filteredForms.length > 0 ? 
+                        filteredForms.map((form, index) => (
                             <tr key={index}>
                                 <td><input type="checkbox" class="rowCheckbox" />{form.name}</td>
                                 <td><div className='copy-form-id' onClick={() => copyFormID(form.form_id, setTooltipText)}>
@@ -107,24 +107,37 @@ const FormsList = () => {
                                 <td>{formatDateTime(form.created_at)}</td>
                                 <td>{form.status}</td>
                                 <td>
-                                    <div className='flex justify-end gap-2'>
-                                        <button className='flex items-center gap-[5px] default-border rounded-lg py-[5px] px-[10px]' title='View' onClick={() => handleView(form)}>
-                                            <FaRegEye />
-                                            {/* View */}
-                                        </button>
-                                        <button className='flex items-center gap-[5px] default-border rounded-lg py-[5px] px-[10px]' title='Edit'>
-                                            <BiSolidEdit />
-                                            {/* Edit */}
-                                        </button>
-                                        <button className='flex items-center gap-[5px] default-border rounded-lg py-[5px] px-[10px]' title='Configuration' onClick={() => handleConfiguration(form.form_id)}>
-                                            <LuSettings />
-                                            {/* Configure */}
-                                        </button>
-                                        <button className='flex items-center gap-[5px] delete-btn border border-[#fd5252] text-[#fd5252] py-[5px] px-2 rounded-lg' title='Trash' onClick={() => handleDelete(form.form_id)}>
-                                            <GoTrash className='fill-[#fd5252]' />
-                                            {/* Delete */}
-                                        </button>
-                                    </div>
+                                    {form.is_trashed === '0' ? (
+                                        <div className='flex justify-end gap-2'>
+                                            <button className='flex items-center gap-[5px] default-border rounded-lg py-[5px] px-[10px]' title='View' onClick={() => handleView(form)}>
+                                                <FaRegEye />
+                                                {/* View */}
+                                            </button>
+                                            <button className='flex items-center gap-[5px] default-border rounded-lg py-[5px] px-[10px]' title='Edit'>
+                                                <BiSolidEdit />
+                                                {/* Edit */}
+                                            </button>
+                                            <button className='flex items-center gap-[5px] default-border rounded-lg py-[5px] px-[10px]' title='Configuration' onClick={() => handleConfiguration(form.form_id)}>
+                                                <LuSettings />
+                                                {/* Configure */}
+                                            </button>
+                                            <button className='flex items-center gap-[5px] delete-btn border border-[#fd5252] text-[#fd5252] py-[5px] px-2 rounded-lg' title='Trash' onClick={() => handleTrash(form.form_id, 'trash')}>
+                                                <GoTrash className='fill-[#fd5252]' />
+                                                {/* Delete */}
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className='flex justify-end gap-2'>
+                                            <button className='flex items-center gap-[5px] default-border rounded-lg py-[5px] px-[10px]' title='Restore' onClick={() => handleTrash(form.form_id, 'restore')}>
+                                                <IoIosUndo />
+                                                {/* Configure */}
+                                            </button>
+                                            <button className='flex items-center gap-[5px] delete-btn border border-[#fd5252] text-[#fd5252] py-[5px] px-2 rounded-lg' title='Delete Permanently' onClick={() => handleDelete(form.form_id)}>
+                                                <GoTrash className='fill-[#fd5252]' />
+                                                {/* Delete */}
+                                            </button>
+                                        </div>
+                                    )}
                                 </td>
                             </tr>
                         )) : (
