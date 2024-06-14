@@ -1,6 +1,6 @@
 <?php
 
-namespace AwContactForm\tables;
+namespace AwContactForm\Backend\tables;
 
 class InsertData {
     public static function insert_table_data ($t_name, $table_data) {

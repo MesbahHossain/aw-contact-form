@@ -1,8 +1,8 @@
 <?php
 
-namespace AwContactForm\tables;
+namespace AwContactForm\Backend\tables;
 
-use AwContactForm\tables\CreateTables;
+use AwContactForm\Backend\tables\CreateTables;
 
 class Tables {
     public static function create_forms_table () {
@@ -29,11 +29,10 @@ class Tables {
         form_id varchar (25) NOT NULL,
         to_email varchar(50),
         from_email varchar(50),
-        replyTo varchar(50),
+        reply_to varchar(50),
         cc varchar(50),
         bcc varchar(50),
         body text NOT NULL,
-        created_at DATE,
         PRIMARY KEY (id),
         FOREIGN KEY (form_id) REFERENCES '.$wpdb->prefix.'forms(form_id) ON DELETE CASCADE';
         

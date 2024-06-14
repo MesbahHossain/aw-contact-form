@@ -5,6 +5,7 @@ import copyFormID from '../functions/copyFormID';
 import formatDateTime from '../functions/formatDateTime';
 import FormModal from './FormModal';
 import updateFormData from '../functions/updateFormData';
+import deleteForm from '../functions/deleteForm';
 import { NavLink, useNavigate } from 'react-router-dom';
 
 // Icons
@@ -15,6 +16,8 @@ import { GoTrash } from "react-icons/go";
 import { LuSearch } from "react-icons/lu";
 import { AiOutlinePlus } from "react-icons/ai";
 import { IoIosUndo } from "react-icons/io";
+import { IoIosArrowBack } from "react-icons/io";
+import { IoIosArrowForward } from "react-icons/io";
 
 const FormsList = () => {
     document.body.classList.remove('bgDark');
@@ -24,6 +27,10 @@ const FormsList = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedForm, setSelectedForm] = useState(null);
     const [filter, setFilter] = useState('0');
+    const [totalForms, setTotalForms] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState('');
+    const rowsPerPage = 2;
     const navigate = useNavigate();
 
     const handleView = (form) => {
@@ -42,25 +49,45 @@ const FormsList = () => {
     
     const handleTrash = async (formId, action) => {
         const success = await updateFormData(formId, action);
+        if (success) {
+            
+        fetchData();
+        }
+    };
+
+    const handleDelete = async (formId) => {
+        const success = await deleteForm(formId);
         success ? setTableData(prevTableData => prevTableData.filter(form => form.form_id !== formId)) : '';
-    };      
+    };
+
+    const fetchData = async () => {
+        const data = await getFormData(currentPage, rowsPerPage, filter, searchTerm);
+        if(!(data.forms.length > 0)) {
+            setCurrentPage(currentPage - 1)
+        } else {
+            setTableData(data.forms);
+            setTotalForms(data.totalForms);
+            setDoneFetching(true);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            const data = await getFormData();
-            setTableData(data);
-            setDoneFetching(true);
-        };
-
         fetchData();
-    }, []);
+    }, [currentPage, filter]);
     
     useEffect(() => {
         selectAll();
     }, [doneFetching]);
 
-    // Filter forms based on the selected filter
-    const filteredForms = tableData.filter(form => form.is_trashed === filter);
+    // Handle search form submission
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        setCurrentPage(1);
+        fetchData();
+    };
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalForms / rowsPerPage);
 
     return (
         <>
@@ -68,13 +95,13 @@ const FormsList = () => {
             <h2 className='text-2xl font-semibold mb-4'>Forms</h2>
             <div className="forms-table-wrapper bg-white p-5 rounded-xl">
                 <div>
-                    <button className={`border rounded-lg py-[7px] px-4 font-medium mr-[10px] ${filter === '0' ? 'bg-purple-100 border-purple-700' : 'default-border'}`} onClick={() => setFilter('0')}>All Forms</button>
-                    <button className={`border rounded-lg py-[7px] px-4 font-medium ${filter === '1' ? 'bg-purple-100 border-purple-700' : 'default-border'}`} onClick={() => setFilter('1')}>Trash</button>
+                    <button className={`border rounded-lg py-[7px] px-4 font-medium mr-[10px] ${filter === '0' ? 'bg-purple-100 border-purple-700' : 'default-border'}`} onClick={() => {setFilter('0'); setCurrentPage(1);}}>All Forms</button>
+                    <button className={`border rounded-lg py-[7px] px-4 font-medium ${filter === '1' ? 'bg-purple-100 border-purple-700' : 'default-border'}`} onClick={() => {setFilter('1'); setCurrentPage(1);}}>Trash</button>
                 </div>
                 <div className='flex justify-between default-border rounded-lg py-[15px] px-[25px] mt-[20px] mb-[10px]'>
-                    <form className='default-border flex items-center rounded-lg py-[2px] px-[15px]'>
+                    <form className='default-border flex items-center rounded-lg py-[2px] px-[15px]' onSubmit={handleSearchSubmit}>
                         <button className='text-[#565865]'><LuSearch /></button>
-                        <input className='b-none' type="text" placeholder='Search' required />
+                        <input className='b-none' type="text" placeholder='Search' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} required />
                     </form>
                     <NavLink className='flex items-center gap-[10px] bg-[#7232EF] py-1 px-5 rounded-md text-white font-medium hover:text-white' to={'/'}>
                         <AiOutlinePlus />
@@ -93,8 +120,8 @@ const FormsList = () => {
                     </thead>
                     <tbody className='text-[#565865]'>
                     {doneFetching === true ?
-                    typeof filteredForms === 'object' && filteredForms.length > 0 ? 
-                        filteredForms.map((form, index) => (
+                    typeof tableData === 'object' && tableData.length > 0 ? 
+                        tableData.map((form, index) => (
                             <tr key={index}>
                                 <td><input type="checkbox" class="rowCheckbox" />{form.name}</td>
                                 <td><div className='copy-form-id' onClick={() => copyFormID(form.form_id, setTooltipText)}>
@@ -105,7 +132,7 @@ const FormsList = () => {
                                     <span class="tooltip">{tooltipText}</span>
                                 </div></td>
                                 <td>{formatDateTime(form.created_at)}</td>
-                                <td>{form.status}</td>
+                                <td>{form.is_configured == '1' ? 'Configured' : 'Not configured'}</td>
                                 <td>
                                     {form.is_trashed === '0' ? (
                                         <div className='flex justify-end gap-2'>
@@ -149,6 +176,38 @@ const FormsList = () => {
                 </table>
 
                 {showModal && ( <FormModal form={selectedForm} onClose={handleCloseModal} /> )}
+
+                {/* Pagination controls */}
+                {totalPages > 1 ? (
+                    <div className="pagination w-fit mt-[10px] flex default-border border-separate rounded-lg">
+                        <button
+                            key={0}
+                            className={`w-10 px-3 rounded-s-lg`}
+                            onClick={() => setCurrentPage(1)}
+                            disabled={currentPage === 1}
+                        >
+                            <IoIosArrowBack />
+                        </button>
+                        {Array.from({ length: totalPages }, (_, index) => (
+                            <button
+                                key={index}
+                                className={`py-2 px-4 ${currentPage === index + 1 ? 'bg-[#7232EF] text-white' : 'border-l border-[#D8D8D8]'}`}
+                                onClick={() => setCurrentPage(index + 1)}
+                            >
+                                {index + 1}
+                            </button>
+                        ))}
+                        <button
+                            key={totalPages-1}
+                            className={`w-10 px-3 border-l border-[#D8D8D8] rounded-r-lg`}
+                            onClick={() => setCurrentPage(totalPages)}
+                            disabled={currentPage === totalPages}
+                        >
+                            <IoIosArrowForward />
+                        </button>
+                    </div>
+                ) : ''}
+                
             </div>
         </div>
         </>

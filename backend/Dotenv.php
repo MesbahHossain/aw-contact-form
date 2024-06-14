@@ -1,6 +1,6 @@
 <?php 
 
-namespace AwContactForm;
+namespace AwContactForm\Backend;
 
 class Dotenv {
     public static function load () {

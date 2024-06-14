@@ -1,6 +1,6 @@
 <?php
 
-namespace AwContactForm\tables;
+namespace AwContactForm\Backend\tables;
 
 class UpdateData {
     public static function update_table_data($t_name, $t_data, $id) {

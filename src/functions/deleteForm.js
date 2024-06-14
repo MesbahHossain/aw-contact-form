@@ -14,10 +14,11 @@ const deleteForm = async (formId) => {
         confirmButtonText: "Yes, delete it!"
     });
     if (result.isConfirmed) {
-        const response = await fetch(`${baseUrl}/contact-form-plugin/wp-json/awcontactform/v1/deletefromdata/`, {
+        const response = await fetch(`${baseUrl}/contact-form-plugin/wp-json/awcontactform/v1/deletefromdata/${formId}`, {
             method: 'DELETE',
-            headers: { 'Content-Type': 'application/json', },
-            body: JSON.stringify({ formId: formId }),
+            headers: { 
+                'X-WP-Nonce': AwcfApiSettings.nonce
+            }
         });
 
         const responseData = await response.json();
@@ -25,7 +26,9 @@ const deleteForm = async (formId) => {
             await Swal.fire({
                 title: "Deleted!",
                 text: "The form has been deleted.",
-                icon: "success"
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1000
             });
             dispatch(store).setResponse(1, '', {}, '', '');
             return true;
@@ -33,7 +36,9 @@ const deleteForm = async (formId) => {
             Swal.fire({
                 title: "Something went wrong!",
                 text: "The form is not deleted.",
-                icon: "error"
+                icon: "error",
+                showConfirmButton: false,
+                timer: 1000
             });
             return false;
         }

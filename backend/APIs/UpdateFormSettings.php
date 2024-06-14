@@ -2,10 +2,9 @@
 
 namespace AwContactForm\Backend\APIs;
 
-use AwContactForm\Backend\tables\InsertData;
 use AwContactForm\Backend\tables\UpdateData;
 
-class SaveFormSettings {
+class UpdateFormSettings {
     public function  __construct() {
         $this->init();
     }
@@ -15,9 +14,9 @@ class SaveFormSettings {
     }
 
     public function register_routes() {
-        register_rest_route('awcontactform/v1', '/insertformsettings/', [
-            'methods'               => \WP_REST_Server::CREATABLE,
-            'callback'              => [$this, 'insert_form_settings'],
+        register_rest_route('awcontactform/v1', '/updateformsettings/', [
+            'methods'               => \WP_REST_Server::EDITABLE,
+            'callback'              => [$this, 'update_form_settings'],
             'permission_callback'   => [$this, 'permissions_check_callback']
         ]);
     }
@@ -26,9 +25,8 @@ class SaveFormSettings {
         return current_user_can( 'manage_options' );
     }
 
-    public function insert_form_settings($request) {
+    public function update_form_settings($request) {
         $table_data = [
-            'form_id'       => $request['formId'],
             'to_email'      => $request['to'],
             'from_email'    => $request['from'],
             'reply_to'      => $request['replyTo'],
@@ -37,11 +35,9 @@ class SaveFormSettings {
             'body'          => $request['body'],
         ];
 
-        $insert = InsertData::insert_table_data('form_settings', $table_data);
-        if($insert && $request['to'] != '' && $request['from'] != '' && $request['body'] != '') {
-            $t_data = ['is_configured' => true];
-            UpdateData::update_table_data('forms', $t_data, $request['formId']);
-        }
-        return $insert;
+        $result = UpdateData::update_table_data('form_settings', $table_data, $request['formId']);
+        $t_data = ($request['to'] != '' && $request['from'] != '' && $request['body'] != '') ? ['is_configured' => true] : ['is_configured' => false];
+        UpdateData::update_table_data('forms', $t_data, $request['formId']);
+        return $result;
     }
 }

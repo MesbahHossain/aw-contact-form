@@ -3,9 +3,10 @@ import illustration from '../assets/images/Illustration.png';
 import deleteForm from '../functions/deleteForm';
 import getFormSettings from '../functions/getFormSettings';
 import store from '../store/store';
-import { select, dispatch } from '@wordpress/data';
-import Swal from 'sweetalert2';
-import { useNavigate, useParams } from 'react-router-dom';
+import saveFormSettings from '../functions/saveFormSettings';
+import updateFormSettings from '../functions/updateFormSettings';
+import { select } from '@wordpress/data';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const MailConfiguration = () => {
     const [to, setTo] = useState('');
@@ -14,69 +15,50 @@ const MailConfiguration = () => {
     const [cc, setCC] = useState('');
     const [bcc, setBCC] = useState('');
     const [body, setBody] = useState('');
+    const [showUpdateBtn, setShowUpdateBtn] = useState(false);
 
-    const [formSettings, setFormSettings] = useState([]);
-    
     const navigate = useNavigate();
+    
     let { formId } = useParams();
     if(!formId) {
         formId = select(store).getResponse().formId;
-    }else {
+    } else {
         useEffect(() => {
             const fetchData = async () => {
-                const data = await getFormSettings();
-                setFormSettings(data);
+                const data = await getFormSettings(formId);
+                if (data.length > 0) {
+                    setTo(data[0].to_email);
+                    setFrom(data[0].from_email);
+                    setReplyTo(data[0].reply_to);
+                    setCC(data[0].cc);
+                    setBCC(data[0].bcc);
+                    setBody(data[0].body);
+                }
             };
     
             fetchData();
+            setShowUpdateBtn(true);
         }, []);
-        console.log(formSettings);
     }
 
-    const saveFormSettings = async () => {
-        const dataToSend = {
-            to: to, 
-            from: from, 
-            replyTo: replyTo, 
-            cc: cc, 
-            bcc: bcc,
-            body: body,
-            formId: formId
-        };
-        const baseUrl = window.location.protocol + "//" + window.location.host;
-        if(dataToSend !== '') {
-            try {
-                const response = await fetch(`${baseUrl}/contact-form-plugin/wp-json/awcontactform/v1/insertformsettings/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(dataToSend),
-                });
-            
-                const responseData = await response.json();
-                console.log(responseData); // Handle response from WordPress
-                if(responseData === true) {
-                    Swal.fire({
-                        title: "Saved!",
-                        text: "Form settings saved successfully.",
-                        icon: "success"
-                    }).then(() => {
-                        dispatch(store).clearState();
-                        navigate('/aw-forms');
-                    });
-                } else {
-                    Swal.fire({
-                        title: "Something went wrong!",
-                        text: responseData,
-                        icon: "error"
-                    });
-                }
-            } catch (error) {
-                console.error('Error sending data to WordPress:', error);
-            }
-        }
+    let dataToSend = {
+        to: to, 
+        from: from, 
+        replyTo: replyTo, 
+        cc: cc, 
+        bcc: bcc,
+        body: body,
+        formId: formId
+    };
+
+    const saveSettings = async () => {
+        const result = await saveFormSettings(dataToSend);
+        result ? navigate('/aw-forms') : '';
     }
+    
+    const updateSettings = async () => {
+        await updateFormSettings(dataToSend);
+    };
     
     /* --------- Email validation --------- */
     const emailInputs = document.querySelectorAll('input[type="email"]');
@@ -142,10 +124,14 @@ const MailConfiguration = () => {
                         <textarea name="body" id="body" rows="3" placeholder="Message Body" onChange={(e) => setBody(e.target.value)} >{body}</textarea>
                     </div>
                 </div>
-                <div className='mb-5'>
-                    <button className='bg-violet-600 text-white ml-5 py-1 px-7 border border-violet-800 rounded-lg' onClick={saveFormSettings}>Save</button>
-                    <button className='bg-white ml-4 py-1 px-5 border border-slate-700 rounded-lg' onClick={() => deleteForm(formId)}>Delete</button>
-                </div>
+                {showUpdateBtn ? (
+                    <button className='bg-violet-600 text-white ml-5 mb-5 py-1 px-7 border border-violet-800 rounded-lg' onClick={updateSettings}>Update</button>
+                ) : (
+                    <div className='mb-5'>
+                        <button className='bg-violet-600 text-white ml-5 py-1 px-7 border border-violet-800 rounded-lg' onClick={saveSettings}>Save</button>
+                        <button className='bg-white ml-4 py-1 px-5 border border-slate-700 rounded-lg' onClick={() => deleteForm(formId)}>Delete</button>
+                    </div>
+                )}                
             </div>
             <div className="bg-white rounded-lg col-span-2 h-fit">
                 <div className='px-5 py-4 flex items-center gap-x-[10px]'>

@@ -1,6 +1,6 @@
 <?php
 
-namespace AwContactForm\tables;
+namespace AwContactForm\Backend\tables;
 
 class DeleteData {
     public static function delete_table_data ($t_name, $table_data) {

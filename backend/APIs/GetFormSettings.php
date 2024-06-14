@@ -1,8 +1,8 @@
 <?php 
 
-namespace AwContactForm\APIs;
+namespace AwContactForm\Backend\APIs;
 
-use AwContactForm\tables\SelectData;
+use AwContactForm\Backend\tables\SelectData;
 
 class GetFormSettings {
     public function  __construct() {
@@ -15,14 +15,22 @@ class GetFormSettings {
 
     public function register_routes() {
         register_rest_route('awcontactform/v1', '/selectformsettings/(?P<id>[a-zA-Z0-9_-]+)', [
-            'methods'               => 'GET',
+            'methods'               => \WP_REST_Server::READABLE,
             'callback'              => [$this, 'select_form_settings'],
             'permission_callback'   => '__return_true'
         ]);
     }
 
+    public function permissions_check_callback() {
+        // Allow the request if it's coming from an internal source
+        if (defined('DOING_CRON') && DOING_CRON) {
+            return true;
+        }
+        return current_user_can( 'manage_options' );
+    }
+
     public function select_form_settings($request) {
         $form_id = $request->get_param('id');
-        return SelectData::select_table_data('form_settings', $form_id);
+        return SelectData::select_settings_data($form_id);
     }
 }

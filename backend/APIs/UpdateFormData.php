@@ -1,9 +1,8 @@
 <?php 
 
-namespace AwContactForm\APIs;
+namespace AwContactForm\Backend\APIs;
 
-use AwContactForm\tables\SelectData;
-use AwContactForm\tables\UpdateData;
+use AwContactForm\Backend\tables\UpdateData;
 
 class UpdateFormData {
     public function  __construct() {
@@ -16,16 +15,17 @@ class UpdateFormData {
 
     public function register_routes() {
         register_rest_route('awcontactform/v1', '/updateformdata/', [
-            'methods'               => 'PUT',
+            'methods'               => \WP_REST_Server::EDITABLE,
             'callback'              => [$this, 'update_form_data'],
-            'permission_callback'   => '__return_true'
+            'permission_callback'   => [$this, 'permissions_check_callback']
         ]);
     }
 
+    public function permissions_check_callback() {
+        return current_user_can( 'manage_options' );
+    }
+
     public function update_form_data($request) {
-        // return UpdateData::update_table_data('forms', $request['tableData'], $request['formId']);
-        print_r($request['tableData']);
-        // print_r($request['formId']);
-        // echo 'working';
+        return UpdateData::update_table_data('forms', $request['tableData'], $request['formId']);
     }
 }

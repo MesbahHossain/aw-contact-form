@@ -1,6 +1,6 @@
 <?php 
 
-namespace AwContactForm\shortcodes;
+namespace AwContactForm\Backend\shortcodes;
 
 class Shortcode {
     /**
@@ -15,7 +15,13 @@ class Shortcode {
         foreach($results as $result) {
             $sCode = $result->form_id;
             add_shortcode($sCode, function() use ($result) {
-                return $result->form;
+                ob_start(); ?>
+                <form action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="POST" class="awcf-form-wrapper">
+                    <input type="hidden" name="action" value="send_custom_mail">
+                    <?php echo $result->form; ?>
+                </form>
+                <?php
+                return ob_get_clean();
             });
         }
     }

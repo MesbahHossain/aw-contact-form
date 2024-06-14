@@ -12,7 +12,10 @@ const ResponseToForm = () => {
         if (element.type === 'text' || element.type === 'email' || element.type === 'tel') {
             return (
                 <div>
-                    <label>{element.title + (element.required ? " *" : "")}</label>
+                    <label>
+                        {element.title}
+                        {element.required && <span className="text-orange-600"> *</span>}
+                    </label>
                     <input
                         type={element.type}
                         placeholder={element.placeHolder}

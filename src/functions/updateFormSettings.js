@@ -1,23 +1,9 @@
 import Swal from 'sweetalert2';
 import { baseUrl } from '../App';
 
-const updateFormData = async (formId, action) => {
+const updateFormSettings = async (dataToSend) => {
     try {
-        let tableData = '', successTitle, failedTitle;
-        if(action == 'trash') {
-            tableData = {'is_trashed' : true};
-            successTitle = "Form sent to trash";
-            failedTitle = "Failed to trash the form";
-        } else if (action == 'restore') {
-            tableData = {'is_trashed' : false};
-            successTitle = "Form restored";
-            failedTitle = "Failed to restore the form"
-        }
-        const dataToSend = {
-            formId: formId,
-            tableData: tableData
-        }
-        const response = await fetch(`${baseUrl}/contact-form-plugin/wp-json/awcontactform/v1/updateformdata/`, {
+        const response = await fetch(`${baseUrl}/contact-form-plugin/wp-json/awcontactform/v1/updateformsettings/`, {
             method: 'PUT',
             headers: {
                 'X-WP-Nonce': AwcfApiSettings.nonce,
@@ -39,13 +25,13 @@ const updateFormData = async (formId, action) => {
         if(responseData === true) {
             Toast.fire({
                 icon: "success",
-                title: successTitle
+                title: "Settings updated"
             });
             return true;
         } else {
             Toast.fire({
                 icon: "error",
-                title: failedTitle
+                title: "Failed to update the settings!"
             });
             return false;
         }
@@ -55,4 +41,4 @@ const updateFormData = async (formId, action) => {
     }
 };
 
-export default updateFormData;
+export default updateFormSettings;

@@ -11,7 +11,7 @@ const FormModal = ({ form, onClose }) => {
                 <button className='close-btn' onClick={onClose}>&times;</button>
             </div>
             <hr />
-            <div className='form-wrapper p-5 pt-[10px]' dangerouslySetInnerHTML={{ __html: form.form }} />
+            <div className='awcf-form-wrapper form-wrapper p-5 pt-[10px]' dangerouslySetInnerHTML={{ __html: form.form }} />
         </div>
         </div>
     );

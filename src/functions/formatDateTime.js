@@ -10,7 +10,7 @@ const formatDateTime = (inputDateString) => {
     let hours = date.getUTCHours();
     const minutes = String(date.getUTCMinutes()).padStart(2, '0');
     const ampm = hours >= 12 ? 'pm' : 'am';
-    hours = hours % 12 == 0 ? 12 : hours; // the hour '0' should be '12'
+    hours = hours > 12 ? hours - 12 : hours; // the hour '0' should be '12'
 
     // Format the date and time parts
     return `${month} ${day}, ${year} - ${hours}:${minutes} ${ampm}`;

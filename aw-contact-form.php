@@ -15,7 +15,7 @@
  * Domain Path:       /languages
  */
 
-use AwContactForm\AwcfInit;
+use AwContactForm\Backend\AwcfInit;
 
 require_once 'vendor/autoload.php';
 

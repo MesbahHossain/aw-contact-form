@@ -1,6 +1,6 @@
 <?php
 
-namespace AwContactForm\tables;
+namespace AwContactForm\Backend\tables;
 
 class CreateTables {
     public static function create_custom_tables($t_name, $inner_sql) {

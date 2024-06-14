@@ -6,13 +6,14 @@ import { baseUrl } from '../App';
 const saveForm = async () => {
     const state = select(store).getResponse();
     const formElements = document.querySelector('.form-wrapper').innerHTML;
-    const form = `<form class="awcf-form-wrapper">${formElements}<button type="submit">Submit</button></form>`;
+    const form = `<input type="hidden" name="form_id" value="${state.formId}">${formElements}<button type="submit">Submit</button>`;
     const dataToSend = { 
         prompt: state.prompt, 
         resposne: state.response, 
         formId: state.formId, 
         formName: state.formName, 
-        form: form 
+        form: form,
+        createTime: new Date().toLocaleString()
     };
     
     if(formElements !== '') {
@@ -21,6 +22,7 @@ const saveForm = async () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-WP-Nonce': AwcfApiSettings.nonce
                 },
                 body: JSON.stringify(dataToSend),
             });

@@ -1,8 +1,8 @@
 <?php 
 
-namespace AwContactForm\APIs;
+namespace AwContactForm\Backend\APIs;
 
-use AwContactForm\Dotenv;
+use AwContactForm\Backend\Dotenv;
 
 class PromptSubmission {
     public function  __construct() {
@@ -15,14 +15,17 @@ class PromptSubmission {
 
     public function register_routes() {
         register_rest_route('awcontactform/v1', '/promptsubmit/', [
-            'methods'               => 'POST',
+            'methods'               => \WP_REST_Server::CREATABLE,
             'callback'              => [$this, 'send_message_to_chatgpt'],
-            'permission_callback'   => '__return_true'
+            'permission_callback'   => [$this, 'permissions_check_callback']
         ]);
     }
 
-    public function send_message_to_chatgpt($request) {  
-        // Load dotenv
+    public function permissions_check_callback() {
+        return current_user_can( 'manage_options' );
+    }
+
+    public function send_message_to_chatgpt($request) { 
         Dotenv::load();
 
         $ApiKey = $_ENV['AW_API_KEY'];

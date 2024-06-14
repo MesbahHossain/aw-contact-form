@@ -1,6 +1,6 @@
 <?php 
 
-namespace AwContactForm\APIs;
+namespace AwContactForm\Backend\APIs;
 
 use AwContactForm\tables\DeleteData;
 
@@ -14,18 +14,19 @@ class DeleteForm {
     }
 
     public function register_routes() {
-        register_rest_route('awcontactform/v1', '/deletefromdata/', [
+        register_rest_route('awcontactform/v1', '/deletefromdata/(?P<id>[a-zA-Z0-9_-]+)', [
             'methods'               => \WP_REST_Server::DELETABLE,
             'callback'              => [$this, 'delete_form_data'],
-            'permission_callback'   => '__return_true'
+            'permission_callback'   => [$this, 'permissions_check_callback']
         ]);
     }
 
     public function permissions_check_callback() {
-        return current_user_can( 'edit_something' );
+        return current_user_can( 'manage_options' );
     }
 
     public function delete_form_data($request) {
-        return DeleteData::delete_table_data('forms', $request['formId']);
+        $form_id = $request->get_param('id');
+        return DeleteData::delete_table_data('forms', $form_id);
     }
 }

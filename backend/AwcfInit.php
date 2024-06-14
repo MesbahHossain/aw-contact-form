@@ -1,16 +1,17 @@
 <?php
 
-namespace AwContactForm;
+namespace AwContactForm\Backend;
 
-use AwContactForm\APIs\DeleteForm;
-use AwContactForm\APIs\GetFormData;
-use AwContactForm\APIs\GetFormSettings;
-use AwContactForm\APIs\PromptSubmission;
-use AwContactForm\APIs\SaveForm;
-use AwContactForm\APIs\SaveFormSettings;
-use AwContactForm\APIs\UpdateFormData;
-use AwContactForm\shortcodes\Shortcode;
-use AwContactForm\tables\Tables;
+use AwContactForm\Backend\APIs\DeleteForm;
+use AwContactForm\Backend\APIs\GetFormData;
+use AwContactForm\Backend\APIs\GetFormSettings;
+use AwContactForm\Backend\APIs\PromptSubmission;
+use AwContactForm\Backend\APIs\SaveForm;
+use AwContactForm\Backend\APIs\SaveFormSettings;
+use AwContactForm\Backend\APIs\UpdateFormData;
+use AwContactForm\Backend\APIs\UpdateFormSettings;
+use AwContactForm\Backend\shortcodes\Shortcode;
+use AwContactForm\Backend\tables\Tables;
 
 class AwcfInit {
     /**
@@ -41,7 +42,9 @@ class AwcfInit {
         new GetFormData();
         new GetFormSettings();
         new UpdateFormData();
+        new UpdateFormSettings();
         Shortcode::createShortcode();
+        require_once __DIR__ . '/../Frontend/wp-mail.php';
     }
 
     /**
@@ -55,6 +58,10 @@ class AwcfInit {
         if ($hook_suffix === 'toplevel_page_aw-contact-form') {
             wp_enqueue_style( 'awcf-style', plugin_dir_url( __FILE__ ) . '../build/index.css' );
             wp_enqueue_script( 'awcf-script', plugin_dir_url( __FILE__ ) . '../build/index.js', $dependency['dependencies'], $dependency['version'], true );
+            wp_localize_script( 'awcf-script', 'AwcfApiSettings', array(
+                'root' => esc_url_raw( rest_url() ),
+                'nonce' => wp_create_nonce( 'wp_rest' ),
+            ) );
         }
     }
 
@@ -64,7 +71,7 @@ class AwcfInit {
      * @return void
      */
     public function awcf_wp_enqueue_scripts() {        
-        wp_enqueue_style( 'awcf-front-style', plugin_dir_url( __FILE__ ) . '../build/frontend.css' );
+        wp_enqueue_style( 'awcf-front-style', plugin_dir_url( __FILE__ ) . '../Frontend/assets/css/frontend.css' );
     }
 
     /**
