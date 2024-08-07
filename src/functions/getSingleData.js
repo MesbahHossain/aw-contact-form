@@ -1,8 +1,8 @@
 import { baseUrl } from '../App';
 
-const getFormData = async (formId) => {
+const getSingleData = async (table, id) => {
     try {
-        const response = await fetch(`${baseUrl}/contact-form-plugin/wp-json/awcontactform/v1/selectformdata/${formId}`, {
+        const response = await fetch(`${baseUrl}/contact-form-plugin/wp-json/awcontactform/v1/selectsingledata/?table=${table}&id=${id}`, {
             method: 'GET',
             headers: { 'X-WP-Nonce': AwcfApiSettings.nonce }
         });
@@ -13,4 +13,4 @@ const getFormData = async (formId) => {
     }
 }
 
-export default getFormData;
+export default getSingleData;

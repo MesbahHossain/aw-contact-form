@@ -5,6 +5,11 @@
     font-size: 15px;
     color: #2F3448;
     
+    /* Reset wp-admin css */
+    select {
+        max-width: unset;
+    }
+
     h1 span.gradient-text {
         font-size: 40px;
         background: linear-gradient(to right, #AD27DA, #711AE1, #11D2E7); 
@@ -29,13 +34,13 @@
         label {
             font-weight: 600;
         }
-        input, textarea {
+        input:not([type='checkbox']), textarea, select {
             display: block;
             width: 100%;
             margin-top: 4px;
             border: 1px solid #D8D8D8;
             border-radius: 8px;
-            padding: 9px 16px;
+            padding: 5px 16px;
         }
     }
 

@@ -5,7 +5,13 @@ namespace AwContactForm\Backend\tables;
 use AwContactForm\Backend\tables\CreateTables;
 
 class Tables {
-    public static function create_forms_table () {
+    public function __construct() {
+        $this->create_forms_table();
+        $this->create_form_settings_table();
+        $this->create_recaptcha_table();
+    }
+
+    private function create_forms_table () {
         $t_name = 'forms';
         $inner_sql = '
         form_id varchar (25) NOT NULL,
@@ -21,7 +27,7 @@ class Tables {
         CreateTables::create_custom_tables($t_name, $inner_sql);
     }
 
-    public static function create_form_settings_table () {
+    private function create_form_settings_table () {
         global $wpdb;
         $t_name = 'form_settings';
         $inner_sql = '
@@ -33,8 +39,22 @@ class Tables {
         cc varchar(50),
         bcc varchar(50),
         body text NOT NULL,
+        type varchar(10),
         PRIMARY KEY (id),
         FOREIGN KEY (form_id) REFERENCES '.$wpdb->prefix.'forms(form_id) ON DELETE CASCADE';
+        
+        CreateTables::create_custom_tables($t_name, $inner_sql);
+    }
+
+    private function create_recaptcha_table () {
+        $t_name = 'awcf_integration';
+        $inner_sql = '
+        id varchar(10),
+        type varchar(10),
+        username varchar (50),
+        password varchar(50),
+        is_active Boolean,
+        PRIMARY KEY (id)';
         
         CreateTables::create_custom_tables($t_name, $inner_sql);
     }

@@ -2,7 +2,7 @@
 
 namespace AwContactForm\Backend\APIs;
 
-use AwContactForm\tables\DeleteData;
+use AwContactForm\Backend\tables\DeleteData;
 
 class DeleteForm {
     public function  __construct() {

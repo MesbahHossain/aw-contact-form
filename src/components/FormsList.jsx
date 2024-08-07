@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import selectAll from '../functions/selectAll';
-import getFormData from '../functions/getFormData';
+import getForms from '../functions/getForms';
 import copyFormID from '../functions/copyFormID';
 import formatDateTime from '../functions/formatDateTime';
 import FormModal from './FormModal';
@@ -9,18 +9,19 @@ import deleteForm from '../functions/deleteForm';
 import { NavLink, useNavigate } from 'react-router-dom';
 
 // Icons
+import Edit from './icons/Edit';
+import Search from './icons/Search';
 import { FaRegEye } from "react-icons/fa6";
-import { BiSolidEdit } from "react-icons/bi";
+// import { BiSolidEdit } from "react-icons/bi";
+// import { LuSearch } from "react-icons/lu";
 import { LuSettings } from "react-icons/lu";
 import { GoTrash } from "react-icons/go";
-import { LuSearch } from "react-icons/lu";
 import { AiOutlinePlus } from "react-icons/ai";
 import { IoIosUndo } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 
 const FormsList = () => {
-    document.body.classList.remove('bgDark');
     const [doneFetching, setDoneFetching] = useState(false);
     const [tableData, setTableData] = useState([]);
     const [tooltipText, setTooltipText] = useState('Click to copy');
@@ -49,19 +50,16 @@ const FormsList = () => {
     
     const handleTrash = async (formId, action) => {
         const success = await updateFormData(formId, action);
-        if (success) {
-            
-        fetchData();
-        }
+        success && fetchData();
     };
 
     const handleDelete = async (formId) => {
         const success = await deleteForm(formId);
-        success ? setTableData(prevTableData => prevTableData.filter(form => form.form_id !== formId)) : '';
+        success && fetchData();
     };
 
     const fetchData = async () => {
-        const data = await getFormData(currentPage, rowsPerPage, filter, searchTerm);
+        const data = await getForms(currentPage, rowsPerPage, filter, searchTerm);
         if(!(data.forms.length > 0)) {
             setCurrentPage(currentPage - 1)
         } else {
@@ -90,17 +88,16 @@ const FormsList = () => {
     const totalPages = Math.ceil(totalForms / rowsPerPage);
 
     return (
-        <>
-        <div className="forms-list-wrapper mt-5 mr-5">
+        <div className="forms-list-component mt-5 mr-5">
             <h2 className='text-2xl font-semibold mb-4'>Forms</h2>
-            <div className="forms-table-wrapper bg-white p-5 rounded-xl">
+            <div className="forms-list-wrapper bg-white p-5 rounded-xl">
                 <div>
                     <button className={`border rounded-lg py-[7px] px-4 font-medium mr-[10px] ${filter === '0' ? 'bg-purple-100 border-purple-700' : 'default-border'}`} onClick={() => {setFilter('0'); setCurrentPage(1);}}>All Forms</button>
                     <button className={`border rounded-lg py-[7px] px-4 font-medium ${filter === '1' ? 'bg-purple-100 border-purple-700' : 'default-border'}`} onClick={() => {setFilter('1'); setCurrentPage(1);}}>Trash</button>
                 </div>
                 <div className='flex justify-between default-border rounded-lg py-[15px] px-[25px] mt-[20px] mb-[10px]'>
                     <form className='default-border flex items-center rounded-lg py-[2px] px-[15px]' onSubmit={handleSearchSubmit}>
-                        <button className='text-[#565865]'><LuSearch /></button>
+                        <button className='text-[#565865]'><Search /></button>
                         <input className='b-none' type="text" placeholder='Search' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} required />
                     </form>
                     <NavLink className='flex items-center gap-[10px] bg-[#7232EF] py-1 px-5 rounded-md text-white font-medium hover:text-white' to={'/'}>
@@ -141,7 +138,7 @@ const FormsList = () => {
                                                 {/* View */}
                                             </button>
                                             <button className='flex items-center gap-[5px] default-border rounded-lg py-[5px] px-[10px]' title='Edit'>
-                                                <BiSolidEdit />
+                                                <Edit />
                                                 {/* Edit */}
                                             </button>
                                             <button className='flex items-center gap-[5px] default-border rounded-lg py-[5px] px-[10px]' title='Configuration' onClick={() => handleConfiguration(form.form_id)}>
@@ -210,7 +207,6 @@ const FormsList = () => {
                 
             </div>
         </div>
-        </>
     )
 }
 

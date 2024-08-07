@@ -18,6 +18,7 @@ const ResponseToForm = () => {
                     </label>
                     <input
                         type={element.type}
+                        name={element.name}
                         placeholder={element.placeHolder}
                         required={element.required}
                     />

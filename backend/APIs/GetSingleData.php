@@ -4,7 +4,7 @@ namespace AwContactForm\Backend\APIs;
 
 use AwContactForm\Backend\tables\SelectData;
 
-class GetFormSettings {
+class GetSingleData {
     public function  __construct() {
         $this->init();
     }
@@ -14,26 +14,25 @@ class GetFormSettings {
     }
 
     public function register_routes() {
-        register_rest_route('awcontactform/v1', '/selectformsettings/(?P<id>[a-zA-Z0-9_-]+)', [
+        register_rest_route('awcontactform/v1', '/selectsingledata/', [
             'methods'               => \WP_REST_Server::READABLE,
-            'callback'              => [$this, 'select_form_settings'],
-            'permission_callback'   => '__return_true'
+            'callback'              => [$this, 'select_single_data'],
+            'permission_callback'   => [$this, 'permissions_check_callback']
         ]);
     }
 
     public function permissions_check_callback() {
-        // Allow the request if it's coming from an internal source
-        if (defined('DOING_CRON') && DOING_CRON) {
-            return true;
-        }
         return current_user_can( 'manage_options' );
     }
 
-    public function select_form_settings($request) {
-        $table_name = 'form_settings';
-        $column = 'form_id';
-        $value = $request->get_param('id');
-
+    public function select_single_data($request) {
+        if(!$request['table'] || !$request['id']) {
+            return 'You must provide table name and id';
+        }
+        $table_name = $request['table'];
+        $column = 'id';
+        $value = $request['id'];
+        
         return SelectData::select_data($table_name, $column, $value);
     }
 }

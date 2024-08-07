@@ -22,22 +22,19 @@ const updateFormSettings = async (dataToSend) => {
               popup: 'mt-7'
             }
         });
-        if(responseData === true) {
+        if(responseData) {
             Toast.fire({
                 icon: "success",
                 title: "Settings updated"
             });
-            return true;
         } else {
             Toast.fire({
                 icon: "error",
                 title: "Failed to update the settings!"
             });
-            return false;
         }
     } catch (error) {
         console.error('Error sending data to WordPress:', error);
-        return false;
     }
 };
 

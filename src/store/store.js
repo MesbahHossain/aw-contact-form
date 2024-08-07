@@ -9,7 +9,7 @@ const initialState = {
 };
 
 const actions = {
-    setResponse( step, prompt, response, formId, formName ) {
+    setResponse ( step, prompt, response, formId, formName ) {
         return {
             type: 'SET_RESPONSE',
             step,

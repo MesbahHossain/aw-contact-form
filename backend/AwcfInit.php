@@ -4,10 +4,13 @@ namespace AwContactForm\Backend;
 
 use AwContactForm\Backend\APIs\DeleteForm;
 use AwContactForm\Backend\APIs\GetFormData;
+use AwContactForm\Backend\APIs\GetFormsData;
 use AwContactForm\Backend\APIs\GetFormSettings;
+use AwContactForm\Backend\APIs\GetSingleData;
 use AwContactForm\Backend\APIs\PromptSubmission;
 use AwContactForm\Backend\APIs\SaveForm;
 use AwContactForm\Backend\APIs\SaveFormSettings;
+use AwContactForm\Backend\APIs\UpdateCaptchaSetting;
 use AwContactForm\Backend\APIs\UpdateFormData;
 use AwContactForm\Backend\APIs\UpdateFormSettings;
 use AwContactForm\Backend\shortcodes\Shortcode;
@@ -18,7 +21,7 @@ class AwcfInit {
 	 * Constructor.
 	 */
 	public function __construct() {
-        $this->init();        
+        $this->init();
     }
 
     private function init() {
@@ -40,9 +43,12 @@ class AwcfInit {
         new SaveFormSettings();
         new DeleteForm();
         new GetFormData();
+        new GetFormsData();
+        new GetSingleData();
         new GetFormSettings();
         new UpdateFormData();
         new UpdateFormSettings();
+        new UpdateCaptchaSetting();
         Shortcode::createShortcode();
         require_once __DIR__ . '/../Frontend/wp-mail.php';
     }
@@ -72,6 +78,12 @@ class AwcfInit {
      */
     public function awcf_wp_enqueue_scripts() {        
         wp_enqueue_style( 'awcf-front-style', plugin_dir_url( __FILE__ ) . '../Frontend/assets/css/frontend.css' );
+        wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?render=6LdRdw0qAAAAAKon2eRBWO5chCdNuNDS2R6rZ2Pj"', array(), null, true );
+        wp_enqueue_script( 'g-recaptcha', plugin_dir_url( __FILE__ ) . '../Frontend/assets/js/g-recaptcha.js', array('google-recaptcha'), null, true );
+        
+        // Pass the SITE_KEY from .env to g-recaptcha.js
+        Dotenv::load();
+        wp_localize_script('g-recaptcha', 'envData', array( 'site_key' => $_SERVER['RECAPTCHA_SITE_KEY'] ));
     }
 
     /**
@@ -86,8 +98,10 @@ class AwcfInit {
 		exit;
 	}
 
+    /**
+     * Migrate the tables 
+     */
     public static function migrate () {
-        Tables::create_forms_table();
-        Tables::create_form_settings_table();
+        new Tables();
     }
 }

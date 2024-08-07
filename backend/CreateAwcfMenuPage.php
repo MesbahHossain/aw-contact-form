@@ -33,8 +33,9 @@ class CreateAwcfMenuPage {
 			// add_submenu_page( 'aw-contact-form', 'Add New Form', 'Add New Form', $capability, 'aw-contact-form' );
 			// add_submenu_page( 'aw-contact-form', 'All Forms', 'All Forms', $capability, 'aw-contact-form#/aw-forms', [''] );
 			// add_submenu_page( 'aw-contact-form', 'From Setup', 'From Setup', $capability, 'aw-contact-form#/aw-form-setup', [''] );
-			$submenu[ $slug ][] = [ 'Add New Form', $capability, 'admin.php?page=' . $slug . '#/' ];// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$submenu[ $slug ][] = [ 'All Forms', $capability, 'admin.php?page=' . $slug . '#/aw-forms' ];// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu[ $slug ][] = [ 'Add New Form', $capability, 'admin.php?page=' . $slug . '#/' ];
+			$submenu[ $slug ][] = [ 'All Forms', $capability, 'admin.php?page=' . $slug . '#/aw-forms' ];
+			$submenu[ $slug ][] = [ 'Form Setup', $capability, 'admin.php?page=' . $slug . '#/aw-form-setup' ];
 		}
 	}
 

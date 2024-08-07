@@ -11,12 +11,10 @@ const Home = () => {
     });
 
     if(dataState == 2) {
-        document.body.classList.remove('bgDark');
         return <ResultForm />;
     } else if(dataState == 3) {
         return <MailConfiguration />
     } else {
-        document.body.classList.add('bgDark');
         return <Prompt />
     }
 }

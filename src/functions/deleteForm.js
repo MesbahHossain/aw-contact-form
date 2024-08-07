@@ -30,7 +30,7 @@ const deleteForm = async (formId) => {
                 showConfirmButton: false,
                 timer: 1000
             });
-            dispatch(store).setResponse(1, '', {}, '', '');
+            dispatch(store).clearState();
             return true;
         } else {
             Swal.fire({

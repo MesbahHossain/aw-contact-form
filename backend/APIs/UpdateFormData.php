@@ -26,6 +26,6 @@ class UpdateFormData {
     }
 
     public function update_form_data($request) {
-        return UpdateData::update_table_data('forms', $request['tableData'], $request['formId']);
+        return UpdateData::update_table_data('forms', $request['tableData'], 'form_id', $request['formId']);
     }
 }

@@ -1,4 +1,5 @@
 import Swal from 'sweetalert2';
+import toast from './toast';
 import { baseUrl } from '../App';
 
 const updateFormData = async (formId, action) => {
@@ -27,28 +28,8 @@ const updateFormData = async (formId, action) => {
         });
 
         const responseData = await response.json();
-        const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 1000,
-            customClass: {
-              popup: 'mt-7'
-            }
-        });
-        if(responseData === true) {
-            Toast.fire({
-                icon: "success",
-                title: successTitle
-            });
-            return true;
-        } else {
-            Toast.fire({
-                icon: "error",
-                title: failedTitle
-            });
-            return false;
-        }
+        toast(responseData, successTitle, failedTitle);
+        return responseData;
     } catch (error) {
         console.error('Error sending data to WordPress:', error);
         return false;

@@ -14,7 +14,7 @@ class GetFormData {
     }
 
     public function register_routes() {
-        register_rest_route('awcontactform/v1', '/selectformdata/', [
+        register_rest_route('awcontactform/v1', '/selectformdata/(?P<id>[a-zA-Z0-9_-]+)', [
             'methods'               => \WP_REST_Server::READABLE,
             'callback'              => [$this, 'select_form_data'],
             'permission_callback'   => [$this, 'permissions_check_callback']
@@ -26,13 +26,10 @@ class GetFormData {
     }
 
     public function select_form_data($request) {
-        $page = isset($request['page']) && is_numeric($request['page']) ? intval($request['page']) : 1;
-        $pageSize = isset($request['pageSize']) && is_numeric($request['pageSize']) ? intval($request['pageSize']) : 2;
-        $is_trashed = isset($request['is_trashed']) && in_array($request['is_trashed'], ['0', '1']) ? $request['is_trashed'] : '0';
-        $search = isset($request['search']) ? sanitize_text_field($request['search']) : '';
-
-        $offset = ($page - 1) * $pageSize;
+        $table_name = 'forms';
+        $column = 'form_id';
+        $value = $request->get_param('id');
         
-        return SelectData::select_forms_data($is_trashed, $pageSize, $offset, $search);
+        return SelectData::select_data($table_name, $column, $value);
     }
 }

@@ -2,29 +2,46 @@ import React, { useState, useEffect } from 'react';
 import illustration from '../assets/images/Illustration.png';
 import deleteForm from '../functions/deleteForm';
 import getFormSettings from '../functions/getFormSettings';
-import store from '../store/store';
 import saveFormSettings from '../functions/saveFormSettings';
 import updateFormSettings from '../functions/updateFormSettings';
+import getFormData from '../functions/getFormData';
+import store from '../store/store';
 import { select } from '@wordpress/data';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const MailConfiguration = () => {
+    const [fId, setFId] = useState('');
     const [to, setTo] = useState('');
     const [from, setFrom] = useState('');
     const [replyTo, setReplyTo] = useState('');
     const [cc, setCC] = useState('');
     const [bcc, setBCC] = useState('');
     const [body, setBody] = useState('');
+    const [isChecked, setIsChecked] = useState(false);
+    const [formFields, setFormFields] = useState([]);
     const [showUpdateBtn, setShowUpdateBtn] = useState(false);
 
     const navigate = useNavigate();
     
+    const getFormFields = (formData) => {        
+        const fields = JSON.parse(formData).formElements.map(element => element.name);
+        const formattedFields = fields.map(field => `[${field}]`).join(', ');
+        setFormFields(formattedFields);
+    }
+
     let { formId } = useParams();
     if(!formId) {
-        formId = select(store).getResponse().formId;
+        useEffect(() => {
+            formId = select(store).getResponse().formId;
+            setFId(formId);
+            const response = select(store).getResponse().response;
+            getFormFields(response);
+            
+        }, []);
+
     } else {
         useEffect(() => {
-            const fetchData = async () => {
+            const fetchFormSettings = async () => {
                 const data = await getFormSettings(formId);
                 if (data.length > 0) {
                     setTo(data[0].to_email);
@@ -33,10 +50,17 @@ const MailConfiguration = () => {
                     setCC(data[0].cc);
                     setBCC(data[0].bcc);
                     setBody(data[0].body);
+                    setIsChecked(data[0].type == 'html' ? true : false);
                 }
             };
+
+            const fetchFormData = async () => {
+                const dataResponse = await getFormData(formId);
+                getFormFields(dataResponse[0].data);
+            }
     
-            fetchData();
+            fetchFormData()
+            fetchFormSettings();
             setShowUpdateBtn(true);
         }, []);
     }
@@ -48,6 +72,7 @@ const MailConfiguration = () => {
         cc: cc, 
         bcc: bcc,
         body: body,
+        isChecked: isChecked,
         formId: formId
     };
 
@@ -121,7 +146,19 @@ const MailConfiguration = () => {
                     </div>
                     <div>
                         <label htmlFor="body">Message Body</label>
-                        <textarea name="body" id="body" rows="3" placeholder="Message Body" onChange={(e) => setBody(e.target.value)} >{body}</textarea>
+                        <textarea name="body" id="body" rows="3" placeholder="Message Body" onChange={(e) => setBody(e.target.value)} value={body} />
+                        <div className='flex items-center gap-1 pt-1'>
+                            <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 0.5C9.30469 0.5 12 3.19531 12 6.5C12 9.82812 9.30469 12.5 6 12.5C2.67188 12.5 0 9.82812 0 6.5C0 3.19531 2.67188 0.5 6 0.5ZM6 11.375C8.67188 11.375 10.875 9.19531 10.875 6.5C10.875 3.82812 8.67188 1.625 6 1.625C3.30469 1.625 1.125 3.82812 1.125 6.5C1.125 9.19531 3.30469 11.375 6 11.375ZM6.9375 8.375C7.24219 8.375 7.5 8.63281 7.5 8.9375C7.5 9.26562 7.24219 9.5 6.9375 9.5H5.0625C4.73438 9.5 4.5 9.26562 4.5 8.9375C4.5 8.63281 4.73438 8.375 5.0625 8.375H5.4375V6.875H5.25C4.92188 6.875 4.6875 6.64062 4.6875 6.3125C4.6875 6.00781 4.92188 5.75 5.25 5.75H6C6.30469 5.75 6.5625 6.00781 6.5625 6.3125V8.375H6.9375ZM6 5C5.57812 5 5.25 4.67188 5.25 4.25C5.25 3.85156 5.57812 3.5 6 3.5C6.39844 3.5 6.75 3.85156 6.75 4.25C6.75 4.67188 6.39844 5 6 5Z" fill="#00832C"/>
+                            </svg>
+                            <span className='text-xs text-[#00832C]'>You can use this tags in the message body
+                                <span className='font-medium'> {formFields}</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        <input type="checkbox" name="content-type" id="content-type" className='!mt-0 !mr-[6px]' checked={isChecked} onChange={(e) => setIsChecked(e.target.checked)} />
+                        <label htmlFor="content-type" className='!font-normal'>HTML Content type</label>
                     </div>
                 </div>
                 {showUpdateBtn ? (
@@ -129,7 +166,7 @@ const MailConfiguration = () => {
                 ) : (
                     <div className='mb-5'>
                         <button className='bg-violet-600 text-white ml-5 py-1 px-7 border border-violet-800 rounded-lg' onClick={saveSettings}>Save</button>
-                        <button className='bg-white ml-4 py-1 px-5 border border-slate-700 rounded-lg' onClick={() => deleteForm(formId)}>Delete</button>
+                        <button className='bg-white ml-4 py-1 px-5 border border-slate-700 rounded-lg' onClick={() => deleteForm(fId)}>Delete</button>
                     </div>
                 )}                
             </div>

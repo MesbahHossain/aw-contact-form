@@ -35,12 +35,13 @@ class SaveFormSettings {
             'cc'            => $request['cc'],
             'bcc'           => $request['bcc'],
             'body'          => $request['body'],
+            'type'          => $request['isChecked'] ? 'html' : 'plain'
         ];
 
         $insert = InsertData::insert_table_data('form_settings', $table_data);
         if($insert && $request['to'] != '' && $request['from'] != '' && $request['body'] != '') {
             $t_data = ['is_configured' => true];
-            UpdateData::update_table_data('forms', $t_data, $request['formId']);
+            UpdateData::update_table_data('forms', $t_data, 'form_id', $request['formId']);
         }
         return $insert;
     }

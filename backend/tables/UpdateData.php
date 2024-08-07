@@ -3,7 +3,7 @@
 namespace AwContactForm\Backend\tables;
 
 class UpdateData {
-    public static function update_table_data($t_name, $t_data, $id) {
+    public static function update_table_data($t_name, $t_data, $column, $value) {
         global $wpdb;
     
         $table_name = $wpdb->prefix . $t_name;
@@ -11,13 +11,9 @@ class UpdateData {
         $result = $wpdb->update(
             $table_name,
             $t_data,
-            array( 'form_id' => $id )
+            array( $column => $value )
         );
 
-        if ($result === false) { // There was an error inserting data            
-            return $wpdb->last_error;
-        } else {
-            return true;
-        }
+        return $result ? true : $wpdb->last_error;
     }
 }
