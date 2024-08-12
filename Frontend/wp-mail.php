@@ -4,6 +4,8 @@ add_action('admin_post_send_custom_mail', 'handle_awcf_mail_form');
 
 //Import PHPMailer classes into the global namespace
 //These must be at the top of your script, not inside a function
+
+use AwContactForm\Backend\Dotenv;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
@@ -140,7 +142,8 @@ function get_settings_from_rest_api($form_id) {
 
 function myplugin_verify_recaptcha() {
     if (isset($_POST['g-recaptcha-response'])) {
-        $recaptcha_secret = '6LdRdw0qAAAAAGxIKQaMWy18YBTGZ6UlhrWwZD-s';
+        Dotenv::load();
+        $recaptcha_secret = $_SERVER['RECAPTCHA_SECRET_KEY'];
         $recaptcha_response = $_POST['g-recaptcha-response'];
 
         $response = wp_remote_post("https://www.google.com/recaptcha/api/siteverify", array(
